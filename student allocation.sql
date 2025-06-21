@@ -142,3 +142,8 @@ END
 
 
 EXEC AllocateSubjects;
+
+SELECT * FROM Allotments;
+SELECT * FROM UnallotedStudents;
+SELECT * FROM SubjectDetails;
+SELECT * FROM StudentPreference;
