@@ -71,13 +71,11 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Temporary table to hold sorted student data
     DECLARE @StudentList TABLE (
         StudentId INT,
         GPA FLOAT
     );
 
-    -- Insert sorted students into temp table (highest GPA first)
     INSERT INTO @StudentList (StudentId, GPA)
     SELECT StudentId, GPA
     FROM StudentDetails
@@ -88,7 +86,6 @@ BEGIN
     DECLARE @SubjectId VARCHAR(10);
     DECLARE @RemainingSeats INT;
 
-    -- Cursor to loop through each student by GPA
     DECLARE student_cursor CURSOR FOR
         SELECT StudentId FROM @StudentList;
 
@@ -101,36 +98,29 @@ BEGIN
 
         WHILE @Preference <= 5
         BEGIN
-            -- Get SubjectId for the current preference
             SELECT @SubjectId = SubjectId
             FROM StudentPreference
             WHERE StudentId = @StudentId AND Preference = @Preference;
 
-            -- Check if SubjectId exists (student may have <5 preferences)
             IF @SubjectId IS NULL
             BEGIN
                 SET @Preference = @Preference + 1;
                 CONTINUE;
             END
 
-            -- Get remaining seats for this subject
             SELECT @RemainingSeats = RemainingSeats
             FROM SubjectDetails
             WHERE SubjectId = @SubjectId;
 
-            -- If seat available, allot subject
             IF @RemainingSeats > 0
             BEGIN
-                -- Insert into Allotments table
                 INSERT INTO Allotments (SubjectId, StudentId)
                 VALUES (@SubjectId, @StudentId);
 
-                -- Update RemainingSeats
                 UPDATE SubjectDetails
                 SET RemainingSeats = RemainingSeats - 1
                 WHERE SubjectId = @SubjectId;
 
-                -- Break loop, subject allotted
                 BREAK;
             END
 
